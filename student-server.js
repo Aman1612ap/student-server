@@ -137,7 +137,7 @@ app.put('/updateUserData/:aadhar',async function(req,res){
     res.json(response);
 });
 
-app.listen(3011,function(){
+app.listen(process.env.PORT || 3011,function(){
   // logger();
   console.log("connected to server")
 });
