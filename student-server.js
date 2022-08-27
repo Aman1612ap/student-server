@@ -231,7 +231,7 @@ async function updateData(aadhar, userData) {
     
     const client = dbo.getDb();
     const studentCredColl = client.db("student").collection("studentDetails");
-    
+    delete userData._id;
     const studentDetails  = await studentCredColl.updateOne({ "aadhar" :  aadhar},
     { $set: userData});
     console.log(studentDetails);
