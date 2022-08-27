@@ -16,7 +16,7 @@ dbo.connectToServer(function (err) {
         console.error(err);
         process.exit();
     } else {
-        console.log('this is success');
+        console.log('DB connnection successfully stablished.');
     }
 });
 
@@ -40,14 +40,14 @@ app.post('/signUp', async function(req,res){
     const response = {data: ''};
     if(result.alreadyExist) {
         response.error = "Already registered",
-        response.data = 'fail';
+        response.status = 'fail';
         response.reseon= 'alreadyRegistred';
     } else if(!result.success) {
         response.error = "",
-        response.data = 'fail';
+        response.status = 'fail';
         response.reseon= result.reseon? result.reseon: '';
     } else {
-        response.data = 'success';
+        response.status = 'success';
     }
     res.json(response);
 });
@@ -58,9 +58,9 @@ app.post('/login', async function(req,res){
 
     const response = {};
     if(result.success) {
-        response.data = 'success';;
+        response.status = 'success';;
     } else  {
-        response.data = 'fail';
+        response.status = 'fail';
     }
     res.json(response);
 });
@@ -72,10 +72,10 @@ app.post('/verify', async function(req,res){
 
     const response = {};
     if(result.success) {
-        response.verify = 'success';
+        response.status = 'success';
         response.data = result.data.email;
     } else  {
-        response.verify = 'fail';
+        response.status = 'fail';
     }
     res.json(response);
 });
@@ -96,6 +96,7 @@ app.post('/saveUserData',async function(req,res){
         response.status = 'success';
     } else  {
         response.status = 'fail';
+        response.error = 'Data not saved.';
         response.reseon= result.reseon? result.reseon: '';
     }
     res.json(response);
@@ -130,6 +131,7 @@ app.put('/updateUserData/:aadhar',async function(req,res){
         response.status = 'success';
     } else  {
         response.status = 'fail';
+        response.error = 'Data update failed.';
         response.reseon= result.reseon? result.reseon: '';
     }
     res.json(response);
@@ -232,6 +234,7 @@ async function updateData(aadhar, userData) {
     
     const studentDetails  = await studentCredColl.updateOne({ "aadhar" :  aadhar},
     { $set: userData});
+    console.log(studentDetails);
     if(studentDetails && studentDetails.acknowledged && studentDetails.matchedCount ) {
         result['status'] = true;
     } else {
