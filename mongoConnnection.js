@@ -42,26 +42,54 @@ const uri = "mongodb+srv://amanpatel:r9jPfmKST75qHjGT@cluster0.ov2vga9.mongodb.n
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1, connectTimeoutMS: 30000, keepAlive: true});
 
 client.connect(async err => {
-  const collection = client.db("student").collection("studentCred");
+  const collection = client.db("User").collection("userCred");
   // perform actions on the collection object
 //   collection.insertOne({aadhar: 'ssssdsd', email:'sdssdsds@sdsd.sdsd'},function(err,docs){
 //     console.log('err', err)
 //     console.log(docs);
 //   });
 
-collection.findOne({aadhar: 'ssssdsd'},function(err,docs){
+collection.findOne({},{_id:0},function(err,docs){
         console.log('err', err)
         console.log(docs);
       });
+
+
+     const allData  = await client.db("student").collection("studentDetails").find({}, {_id:0});
+      console.log(allData);
+      for await (const doc of allData) {
+  console.log(doc);
+}
 //  const data = await collection.find({aadhar: 'ssssdsd'});
 //   console.log(data);
 //   client.close();
 
-databasesList = await client.db().admin().listDatabases();
+// databasesList = await client.db().admin().listDatabases();
       
-    console.log("Databases:");
-    console.log(databasesList);
+//     console.log("Databases:");
+//     console.log(databasesList);
+// });
+
+// const data  = await collection.aggregate([
+// {$match: {'aadhar':'825155221935'}},
+// {$lookup: {
+//   from: "userRole",
+//   localField: "aadhar",
+//   foreignField: "aadhar",
+//   as: "userRole"
+//   }
+// }, {$unwind: { path: "$userRole", preserveNullAndEmptyArrays: true }},
+// ]);
+
+// {$match: {userRole: {}}}
+// console.log('adaada',);
+
+// for await (const doc of data) {
+//   console.log(doc);
+// }
+
 });
+
 
 
 // r9jPfmKST75qHjGT
