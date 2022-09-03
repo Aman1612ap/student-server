@@ -65,7 +65,8 @@ app.post('/login', async function(req,res){
 
     const response = {};
     if(result.success) {
-        response.status = 'success';;
+        response.status = 'success';
+        response.role = result.role;
     } else  {
         response.status = 'fail';
     }
@@ -133,16 +134,16 @@ app.put('/updateUserData/:aadhar',async function(req,res){
             homeAddress;
         }
     */
-    const result = await updateData(req.params.aadhar,req.body);
-    const response = {};
-    if(result.status) {
-        response.status = 'success';
-    } else  {
-        response.status = 'fail';
-        response.error = 'Data update failed.';
-        response.reseon= result.reseon? result.reseon: '';
-    }
-    res.json(response);
+    // const result = await updateData(req.params.aadhar,req.body);
+    // const response = {};
+    // if(result.status) {
+    //     response.status = 'success';
+    // } else  {
+    //     response.status = 'fail';
+    //     response.error = 'Data update failed.';
+    //     response.reseon= result.reseon? result.reseon: '';
+    // }
+    res.json({status: 'fail', reseon: 'updatation disabled'});
 });
 
 
