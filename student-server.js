@@ -77,12 +77,11 @@ app.post('/login', async function(req,res){
 app.post('/verify', async function(req,res){
     const result = await varifyUser(req.body);
 
-
     const response = {};
     if(result.success) {
         response.status = 'success';
-        response.status = result.status;
-        response.data = {enrollNumber: response.enrollNumber}
+        response.verificationStatus = result.status;
+        response.data = {enrollNumber: result.enrollNumber}
     } else  {
         response.status = 'fail';
     }
@@ -237,7 +236,7 @@ async function varifyUser(cred) {
 
    
     if(userDetails && userDetails.aadhar) { 
-        return {success: true, enrollNumber: userDetails.enrollNumber, status: userDetails?.verificationStatus == 1 ? 'success': userDetails?.verificationStatus == 0 ? 'Fail' : 'inProgress'}
+        return {success: true, enrollNumber: userDetails.enrollNumber, status: userDetails?.verificationStatus == 1 ? 1 : (userDetails?.verificationStatus == 0 ? 0 : -1)}
     }
     else {
         return {success: false};
@@ -257,7 +256,7 @@ async function loginUser(cred) {
 
     const studentCredColl = client.db(DB_NAME).collection(USER_CRED_COLLECTION);
 
-    const userDetails  = await studentCredColl.aggregate([
+    const userDetailsRes  = await studentCredColl.aggregate([
         {$match: {'aadhar': cred.aadhar}},
         {$lookup: {
         from: USER_ROLE_COLLECTION,
@@ -267,8 +266,11 @@ async function loginUser(cred) {
         }
       }, {$unwind: { path: "$userRole", preserveNullAndEmptyArrays: true }},
       ]);
+    let userDetails = null;
+    for await (const doc of userDetailsRes) {
+        userDetails = doc;
+    }
 
-   
     if(userDetails && userDetails.aadhar && userDetails.userRole && userDetails.userRole.role ) { 
         return {success: true, role:  userDetails.userRole.role == 'Admin' ? 1: 0}
     }
@@ -286,7 +288,7 @@ async function saveData(userData) {
     } else {
         const client = dbo.getDb();
         const studentCredColl = client.db(DB_NAME).collection(USER_DETAIILS_COLLECTION);
-        userData.verificationStatus = '';
+        userData.verificationStatus = '-1';
         const studentDetails  = await studentCredColl.insertOne(userData);
         if(studentDetails && studentDetails.acknowledged && studentDetails.insertedId ) {
             response.status = true;
@@ -328,7 +330,6 @@ async function updateData(aadhar, userData) {
     delete userData._id;
     const studentDetails  = await studentCredColl.updateOne({ "aadhar" :  aadhar},
     { $set: userData});
-    console.log(studentDetails);
     if(studentDetails && studentDetails.acknowledged && studentDetails.matchedCount ) {
         result['status'] = true;
     } else {
